@@ -1,11 +1,15 @@
-# API
+### API
 
 ## Привет, это проект api для взаимодействия с бд.
 
-``` СУБД: Postgresql ```
+``` 
+СУБД: Postgresql 
+```
+
 Для начала нужно создать таблицы в СУБД. 
 
 ### Users
+
 ```
 -- Table: public.products
 
@@ -31,6 +35,7 @@ GRANT ALL ON TABLE public.products TO postgres;
 ```
 
 ### Products
+
 ```
 -- Table: public.users
 
