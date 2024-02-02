@@ -1,11 +1,11 @@
-## API
+# API
 
-# Привет, это проект api для взаимодействия с бд.
+## Привет, это проект api для взаимодействия с бд.
 
 ``` СУБД: Postgresql ```
 Для начала нужно создать таблицы в СУБД. 
 
-# Users
+### Users
 ```
 -- Table: public.products
 
@@ -30,7 +30,7 @@ ALTER TABLE IF EXISTS public.products
 GRANT ALL ON TABLE public.products TO postgres;
 ```
 
-# Products
+### Products
 ```
 -- Table: public.users
 
