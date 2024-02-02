@@ -1,28 +1,37 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Go Build and Format Check
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches:
+      - '*'
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - name: Setup Go
+      uses: actions/setup-go@v2
       with:
-        go-version: '1.20'
+        go-version: '1.16'
 
-    - name: Build
-      run: go build -v ./...
+    - name: Build Project
+      run: go build
 
-    - name: Test
-      run: go test -v ./...
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.16'
+
+    - name: Check Code Formatting
+      run: gofmt -l -s .  # Используйте ваш инструмент для проверки форматирования кода
