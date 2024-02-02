@@ -1,0 +1,60 @@
+Привет, это проект api для взаимодействия с бд.
+
+``` СУБД: Postgresql ```
+Для начала нужно создать таблицы в СУБД. 
+
+## Users
+```
+-- Table: public.products
+
+-- DROP TABLE IF EXISTS public.products;
+
+CREATE TABLE IF NOT EXISTS public.products
+(
+    product_id integer NOT NULL DEFAULT nextval('products_product_id_seq'::regclass),
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    description text COLLATE pg_catalog."default",
+    category character varying(255) COLLATE pg_catalog."default",
+    price numeric,
+    status character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT products_pkey PRIMARY KEY (product_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.products
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.products TO postgres;
+```
+
+## Products
+```
+-- Table: public.users
+
+-- DROP TABLE IF EXISTS public.users;
+
+CREATE TABLE IF NOT EXISTS public.users
+(
+    user_id integer NOT NULL DEFAULT nextval('users_user_id_seq'::regclass),
+    username character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    email character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    password character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT users_pkey PRIMARY KEY (user_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users
+    OWNER to postgres;
+
+GRANT ALL ON TABLE public.users TO postgres;
+```
+Хорошо, допустим у нас созданы таблицы, что дальше?
+Теперь мы можем взаимодействовать с api и самой бд.
+
+Для запуска start.bat перейдите в каталог к файлу и введите:
+``` 
+./start.bat 
+```
+Вот и все, вы можете работать и взаимодействовать с бд.
