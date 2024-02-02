@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"./Controllers" // Make sure to import controllers from the correct package
+	"github.com/VladislavSCV/EducationPractice"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
