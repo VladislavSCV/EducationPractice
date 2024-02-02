@@ -10,7 +10,7 @@
 
 ### Users
 
-```
+```sql
 -- Table: public.products
 
 -- DROP TABLE IF EXISTS public.products;
@@ -36,7 +36,7 @@ GRANT ALL ON TABLE public.products TO postgres;
 
 ### Products
 
-```
+```sql
 -- Table: public.users
 
 -- DROP TABLE IF EXISTS public.users;
