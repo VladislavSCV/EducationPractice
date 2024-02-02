@@ -1,9 +1,11 @@
-Привет, это проект api для взаимодействия с бд.
+## API
+
+# Привет, это проект api для взаимодействия с бд.
 
 ``` СУБД: Postgresql ```
 Для начала нужно создать таблицы в СУБД. 
 
-## Users
+# Users
 ```
 -- Table: public.products
 
@@ -28,7 +30,7 @@ ALTER TABLE IF EXISTS public.products
 GRANT ALL ON TABLE public.products TO postgres;
 ```
 
-## Products
+# Products
 ```
 -- Table: public.users
 
@@ -53,8 +55,6 @@ GRANT ALL ON TABLE public.users TO postgres;
 Хорошо, допустим у нас созданы таблицы, что дальше?
 Теперь мы можем взаимодействовать с api и самой бд.
 
-Для запуска start.bat перейдите в каталог к файлу и введите:
-``` 
-./start.bat 
-```
+Для запуска start.bat перейдите в каталог к файлу и введите: `./start.bat`
+
 Вот и все, вы можете работать и взаимодействовать с бд.
