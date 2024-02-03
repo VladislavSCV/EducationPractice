@@ -1,0 +1,82 @@
+# API для взаимодействия с базой данных
+
+## Описание проекта
+
+Этот проект представляет собой API, разработанный для взаимодействия с базой данных (СУБД: PostgreSQL). API обеспечивает управление информацией о продуктах и пользователях.
+
+## Начало работы
+
+1. Создайте таблицы в базе данных, выполнив SQL-скрипты для таблиц `products` и `users`.
+
+    ```sql
+    -- Таблица: public.products
+
+    -- DROP TABLE IF EXISTS public.products;
+
+    CREATE TABLE IF NOT EXISTS public.products
+    (
+        product_id integer NOT NULL DEFAULT nextval('products_product_id_seq'::regclass),
+        name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+        description text COLLATE pg_catalog."default",
+        category character varying(255) COLLATE pg_catalog."default",
+        price numeric,
+        status character varying(255) COLLATE pg_catalog."default",
+        CONSTRAINT products_pkey PRIMARY KEY (product_id)
+    )
+
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.products
+        OWNER to postgres;
+
+    GRANT ALL ON TABLE public.products TO postgres;
+    ```
+
+    ```sql
+    -- Таблица: public.users
+
+    -- DROP TABLE IF EXISTS public.users;
+
+    CREATE TABLE IF NOT EXISTS public.users
+    (
+        user_id integer NOT NULL DEFAULT nextval('users_user_id_seq'::regclass),
+        username character varying(255) COLLATE pg_catalog."default" NOT NULL,
+        email character varying(255) COLLATE pg_catalog."default" NOT NULL,
+        password character varying(255) COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT users_pkey PRIMARY KEY (user_id)
+    )
+
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.users
+        OWNER to postgres;
+
+    GRANT ALL ON TABLE public.users TO postgres;
+    ```
+
+2. После создания таблиц, вы можете взаимодействовать с API для управления данными в базе данных.
+
+## Запуск проекта
+
+Для запуска API выполните следующие шаги:
+
+1. Перейдите в каталог с файлом `start.bat`.
+2. Введите команду: `./start.bat`
+
+Теперь вы можете начать работать с API и взаимодействовать с базой данных.
+
+## Взаимодействие с API
+
+API предоставляет следующие возможности:
+
+- **Управление продуктами:**
+  - Получение списка продуктов
+  - Добавление нового продукта
+  - Обновление информации о продукте
+  - Удаление продукта
+
+- **Управление пользователями:**
+  - Получение списка пользователей
+  - Добавление нового пользователя
+  - Обновление информации о пользователе
+  - Удаление пользователя
