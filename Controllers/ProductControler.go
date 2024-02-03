@@ -21,6 +21,7 @@ type Product struct {
 	Append_Date 	time.Time `json:"registration_date"`
 }
 
+
 // GetProducts возвращает список всех продуктов
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
@@ -57,7 +58,8 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, productList)
 }
 
-func GetProduct(w http.ResponseWriter, r *http.Request) {
+
+func GetProductById(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
 	db, err := initDB()
 	if err != nil {
@@ -97,6 +99,43 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, product)
 }
 
+
+// Поиск товаров по категориям
+func GetProductByCategory(w http.ResponseWriter, r *http.Request) {
+	// Создаем подключение к бд и обрабатываем ошибки
+	db, err := initDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Получаем параметры из запроса
+	params := mux.Vars(r)
+	category := params["category"]
+	log.Printf("[DEBUG] GetProductByCategory")
+
+	// Запрос к бд
+	row := db.QueryRow("SELECT * FROM products WHERE category = $1;", category)
+
+	var product Product
+	/* Сканирование копирует столбцы из сопоставленной строки в значения.
+	Если более одной строки соответствует запросу,
+	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
+	соответствует запросу, Scan возвращает ErrNoRows. */
+	err = row.Scan(&product.ProductID, &product.Name, &product.Description, 
+		&product.Category, &product.Price, &product.Category, &product.Append_Date)
+	if err == sql.ErrNoRows {
+		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Пользователь не найден"})
+		return
+	} else if err != nil {
+		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	// Передаем в функцию преобразования в json
+	respondWithJSON(w, http.StatusOK, product)
+}
+
+
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
 	db, err := initDB()
@@ -123,6 +162,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	// Передаем в функцию преобразования в json
 	respondWithJSON(w, http.StatusCreated, map[string]string{"Код": "200"})
 }
+
 
 func PutProduct(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
@@ -154,6 +194,7 @@ func PutProduct(w http.ResponseWriter, r *http.Request) {
 	// Передаем в функцию преобразования в json
 	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Product data updated"})
 }
+
 
 // DeleteProduct удаляет продукт по ID
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {

@@ -120,6 +120,45 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, map[string]string{"Код": "200"})
 }
 
+func AuthUser(w http.ResponseWriter, r *http.Request) {
+	// Создаем подключение к бд и обрабатываем ошибки
+	db, err := initDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	status := false
+
+	// Получаем параметры из запроса
+	params := mux.Vars(r)
+	email := params["email"]
+	password := params["password"]
+
+	log.Print("wow")
+	// Запрос к бд
+	row := db.QueryRow("SELECT * FROM users WHERE email = $1 AND password = $2;", email, password)
+
+	var user User
+	/* Сканирование копирует столбцы из сопоставленной строки в значения,
+	на которые указывает dest. Смотрите документацию по строкам.Сканирование для
+	получения подробной информации. Если более одной строки соответствует запросу,
+	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
+	соответствует запросу, Scan возвращает ErrNoRows. */
+	err = row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.Reg_Date)
+	if err == sql.ErrNoRows {
+		respondWithJSON(w, http.StatusOK, status)
+		return
+	} else if err != nil {
+		respondWithJSON(w, http.StatusOK, status)
+		return
+	}
+	status = true
+
+	// Передаем в функцию преобразования в json
+	respondWithJSON(w, http.StatusOK, status)
+}
+
 
 // UpdateUser обновляет данные пользователя по ID
 func PutUser(w http.ResponseWriter, r *http.Request) {

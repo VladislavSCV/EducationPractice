@@ -25,11 +25,16 @@ func main() {
 
 	// Получить пользователя по id
 	router.HandleFunc("/api/user/{id}", 
-	Controllers.GetUser).Methods("GET")
+	Controllers.AuthUser).Methods("GET")
 
-	// Создать нового пользователя
+	// Проверка на существование в бд пользователя (Авторизация пользователя)
+	router.HandleFunc("/api/user/{email}/{password}", 
+	Controllers.AuthUser).Methods("GET")
+
+	// Создать нового пользователя (Регистсрация пользователя)
 	router.HandleFunc("/api/user/{username}/{email}/{password}", 
 	Controllers.CreateUser).Methods("POST")
+	
 
 	// Обновить данные пользователя
 	router.HandleFunc("/api/user/{id}/{what}/{new}", 
@@ -47,11 +52,15 @@ func main() {
 	router.HandleFunc("/api/products", 
 	Controllers.GetProducts).Methods("GET")
 
-	// Получить товар по id
-	router.HandleFunc("/api/product/{id}", 
-	Controllers.GetProduct).Methods("GET")
+	// Получить товар по категории
+	router.HandleFunc("/api/productCategory/{category}", 
+	Controllers.GetProductByCategory).Methods("GET")
 
-	// Создать новый товар
+	// Получить товар по id
+	router.HandleFunc("/api/productId/{id}", 
+	Controllers.GetProductById).Methods("GET")
+
+	// Создать новый товар (Регистрация товара)
 	router.HandleFunc("/api/product/{name}/{description}/{category}/{price}/{status}", 
 	Controllers.CreateProduct).Methods("POST")
 
