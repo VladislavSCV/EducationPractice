@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -15,9 +16,8 @@ type User struct {
 	Username         string    `json:"username"`
 	Email            string    `json:"email"`
 	Password         string    `json:"password"`
+	Reg_Date 		 time.Time `json:"registration_date"`
 }
-
-var db *sql.DB
 
 
 // GetUsers возвращает список всех пользователей
@@ -43,7 +43,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	var userList []User
 	for users.Next() {
 		var user User
-		if err := users.Scan(&user.UserID, &user.Username, &user.Email, &user.Password); err != nil {
+		if err := users.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.Reg_Date); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -66,7 +66,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	// Получаем параметры из запроса
 	params := mux.Vars(r)
 	userID := params["id"]
-	log.Printf("user: %v", userID)
 
 	// Проверка корректности значения параметра
 	_, err = strconv.Atoi(userID)
@@ -84,12 +83,12 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	получения подробной информации. Если более одной строки соответствует запросу,
 	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
 	соответствует запросу, Scan возвращает ErrNoRows. */
-	err = row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password)
+	err = row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.Reg_Date)
 	if err == sql.ErrNoRows {
 		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Пользователь не найден"})
 		return
 	} else if err != nil {
-		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при получении пользователя"})
+		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при получении пользователя", "error1": err.Error()})
 		return
 	}
 	// Передаем в функцию преобразования в json
@@ -110,8 +109,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	UserName := params["username"]
 	Email := params["email"]
 	Password := params["password"]
-
-	log.Printf("username: %s", UserName)
 
 	// Вставка нового пользователя в базу данных
 	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3);", UserName, Email, Password)
@@ -138,7 +135,6 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
     userID := params["id"]
     what := params["what"]
     new := params["new"]
-    log.Printf(userID)
 
     // Проверка корректности значения параметра
     if _, err := strconv.Atoi(userID); err != nil {
@@ -148,7 +144,6 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 
 	// Запрос к бд
     _, err = db.Exec("UPDATE users SET " + what + " = $1 WHERE user_id = $2", new, userID)
-
     if err != nil {
         respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при обновлении пользователя", "erro2": err.Error()})
         return

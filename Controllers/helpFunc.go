@@ -3,9 +3,10 @@ package Controllers
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 )
+
+var db *sql.DB
 
 // initDB инициализирует базу данных ивозвращает объект DB, err 
 func initDB() (*sql.DB, error) {
@@ -28,7 +29,6 @@ func initDB() (*sql.DB, error) {
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	// Преобразовываем входные данные в json
 	response, err := json.Marshal(payload)
-	log.Printf("response: %v", response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -17,41 +17,52 @@ func main() {
 
 	router := mux.NewRouter()
 
-	// Endpoints для таблицы с пользователями
+	/* Endpoints для таблицы с пользователями */
 
 	// Получение всех пользователей
-	router.HandleFunc("/api/users", Controllers.GetUsers).Methods("GET")
+	router.HandleFunc("/api/users", 
+	Controllers.GetUsers).Methods("GET")
 
 	// Получить пользователя по id
-	router.HandleFunc("/api/user/{id}", Controllers.GetUser).Methods("GET")
+	router.HandleFunc("/api/user/{id}", 
+	Controllers.GetUser).Methods("GET")
 
 	// Создать нового пользователя
-	router.HandleFunc("/api/user/{username}/{email}/{password}", Controllers.CreateUser).Methods("POST")
+	router.HandleFunc("/api/user/{username}/{email}/{password}", 
+	Controllers.CreateUser).Methods("POST")
 
 	// Обновить данные пользователя
-	router.HandleFunc("/api/user/{id}/{what}/{new}", Controllers.PutUser).Methods("PUT")
+	router.HandleFunc("/api/user/{id}/{what}/{new}", 
+	Controllers.PutUser).Methods("PUT")
 
 	// Удалить пользователя
-	router.HandleFunc("/api/user/{id}", Controllers.DeleteUser).Methods("DELETE")
+	router.HandleFunc("/api/user/{id}", 
+	Controllers.DeleteUser).Methods("DELETE")
 
-	// Endpoints для таблицы с товарами
+
+
+	/* Endpoints для таблицы с товарами */
 
 	// Получить все товары
-	router.HandleFunc("/api/products", Controllers.GetProducts).Methods("GET")
+	router.HandleFunc("/api/products", 
+	Controllers.GetProducts).Methods("GET")
 
 	// Получить товар по id
-	router.HandleFunc("/api/product/{id}", Controllers.GetProduct).Methods("GET")
+	router.HandleFunc("/api/product/{id}", 
+	Controllers.GetProduct).Methods("GET")
 
 	// Создать новый товар
-	router.HandleFunc("/api/product/{name}/{description}/{category}/{price}/{status}", Controllers.CreateProduct).Methods("POST")
+	router.HandleFunc("/api/product/{name}/{description}/{category}/{price}/{status}", 
+	Controllers.CreateProduct).Methods("POST")
 
 	// Обновить данные о товаре
-	router.HandleFunc("/api/product/{id}/{what}/{new}", Controllers.PutProduct).Methods("PUT")
+	router.HandleFunc("/api/product/{id}/{what}/{new}", 
+	Controllers.PutProduct).Methods("PUT")
 
 	// Удалить товар
-	router.HandleFunc("/api/product/{id}", Controllers.DeleteProduct).Methods("DELETE")
+	router.HandleFunc("/api/product/{id}", 
+	Controllers.DeleteProduct).Methods("DELETE")
 
-	// Запустить сервер на порту 8000
+	// Запуск сервера на локальном порту 8000
 	log.Fatal(http.ListenAndServe(":8000", router))
-}
 }

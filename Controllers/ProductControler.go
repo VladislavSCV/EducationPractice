@@ -5,18 +5,20 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
 
 // Product структура представляет собой модель данных для таблицы "Товары"
 type Product struct {
-	ProductID   int     `json:"product_id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Category    string  `json:"category"`
-	Price       float64 `json:"price"`
-	Status      string  `json:"status"`
+	ProductID   int       `json:"product_id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Category    string    `json:"category"`
+	Price       float64   `json:"price"`
+	Status      string    `json:"status"`
+	Append_Date 	time.Time `json:"registration_date"`
 }
 
 // GetProducts возвращает список всех продуктов
@@ -42,7 +44,9 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	var productList []Product
 	for products.Next() {
 		var product Product
-		if err := products.Scan(&product.ProductID, &product.Name, &product.Description, &product.Category, &product.Price, &product.Category); err != nil {
+		if err := products.Scan(&product.ProductID, &product.Name, 
+			&product.Description, &product.Category, &product.Price, 
+			&product.Category, &product.Append_Date); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -76,12 +80,12 @@ func GetProduct(w http.ResponseWriter, r *http.Request) {
 	row := db.QueryRow("SELECT * FROM products WHERE product_id = $1;", productID)
 
 	var product Product
-	/* Сканирование копирует столбцы из сопоставленной строки в значения,
-	на которые указывает dest. Смотрите документацию по строкам.Сканирование для
-	получения подробной информации. Если более одной строки соответствует запросу,
+	/* Сканирование копирует столбцы из сопоставленной строки в значения.
+	Если более одной строки соответствует запросу,
 	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
 	соответствует запросу, Scan возвращает ErrNoRows. */
-	err = row.Scan(&product.ProductID, &product.Name, &product.Description, &product.Category, &product.Price, &product.Category)
+	err = row.Scan(&product.ProductID, &product.Name, &product.Description, 
+		&product.Category, &product.Price, &product.Category, &product.Append_Date)
 	if err == sql.ErrNoRows {
 		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Пользователь не найден"})
 		return
@@ -148,7 +152,7 @@ func PutProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Передаем в функцию преобразования в json
-	respondWithJSON(w, http.StatusOK, map[string]string{"message": "User data updated"})
+	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Product data updated"})
 }
 
 // DeleteProduct удаляет продукт по ID
