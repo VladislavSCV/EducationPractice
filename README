@@ -22,7 +22,6 @@
 ```sql
 CREATE TABLE Products (
     product_id SERIAL PRIMARY KEY,
-    seller_id INT REFERENCES Users(user_id),
     name VARCHAR(255) NOT NULL,
     description TEXT,
     category VARCHAR(255),
