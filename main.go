@@ -17,6 +17,7 @@ func main() {
 
 	router := mux.NewRouter()
 
+
 	/* Endpoints для таблицы с пользователями */
 
 	// Получение всех пользователей
@@ -35,7 +36,6 @@ func main() {
 	router.HandleFunc("/api/user/{username}/{email}/{password}", 
 	Controllers.CreateUser).Methods("POST")
 	
-
 	// Обновить данные пользователя
 	router.HandleFunc("/api/user/{id}/{what}/{new}", 
 	Controllers.PutUser).Methods("PUT")
@@ -71,6 +71,29 @@ func main() {
 	// Удалить товар
 	router.HandleFunc("/api/product/{id}", 
 	Controllers.DeleteProduct).Methods("DELETE")
+
+
+	/* Endpoints для таблицы с заказами */
+
+	// Получить все товары
+	router.HandleFunc("/api/orders", 
+	Controllers.GetOrders).Methods("GET")
+
+	// Получить заказ по id
+	router.HandleFunc("/api/orderId/{id}", 
+	Controllers.GetOrder).Methods("GET")
+
+	// Создать новый заказ (Регистрация заказа)
+	router.HandleFunc("/api/order/{buyer_id}/{product_id}/{quantity}/{total_price}", 
+	Controllers.CreateOrder).Methods("POST")
+
+	// Обновить данные о товаре
+	router.HandleFunc("/api/order/{id}/{what}/{new}", 
+	Controllers.PutOrder).Methods("PUT")
+
+	// Удалить товар
+	router.HandleFunc("/api/order/{id}", 
+	Controllers.DeleteOrder).Methods("DELETE")
 
 	// Запуск сервера на локальном порту 8000
 	log.Fatal(http.ListenAndServe(":8000", router))
