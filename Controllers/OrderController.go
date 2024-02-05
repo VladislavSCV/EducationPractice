@@ -168,7 +168,6 @@ func DeleteOrder(w http.ResponseWriter, r *http.Request) {
 	// Получаем идентификатор продукта из параметров запроса
 	params := mux.Vars(r)
 	orderID := params["id"]
-	log.Printf(orderID)
 
 	// Проверка корректности значения параметра
 	_, err = strconv.Atoi(orderID)

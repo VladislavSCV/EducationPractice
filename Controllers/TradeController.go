@@ -172,7 +172,6 @@ func DeleteTrade(w http.ResponseWriter, r *http.Request) {
 	// Получаем идентификатор продукта из параметров запроса
 	params := mux.Vars(r)
 	ID := params["id"]
-	log.Printf(ID)
 
 	// Проверка корректности значения параметра
 	_, err = strconv.Atoi(ID)

@@ -219,7 +219,6 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	// Получаем идентификатор продукта из параметров запроса
 	params := mux.Vars(r)
 	userID := params["id"]
-	log.Printf(userID)
 
 	// Проверка корректности значения параметра
 	_, err = strconv.Atoi(userID)
