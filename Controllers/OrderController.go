@@ -5,22 +5,25 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 )
 
-// User структура представляет собой модель данных для таблицы "Пользователи"
+// Order структура представляет собой модель данных для таблицы "Заказы"
 type Order struct {
-	OrderId		int 	`json:"order_id"`
-	BuyerId 	int 	`json:"buyer_id"`
-	ProductId 	int 	`json:"product_id"`
-	Quantity 	int 	`json:"quantity"`
-	TotalPrice 	int 	`json:"total_price"`
-	OrderDate 	int 	`json:"order_date"`
+	OrderID      int            `json:"order_id"`
+	BuyerID      int            `json:"buyer_id"`
+	OrderDate    time.Time      `json:"order_date"`
+	CreatedBy    int            `json:"created_by"`
+	DeletedBy    sql.NullInt64  `json:"deleted_by"`
+	CreatedAt    time.Time      `json:"created_at"`
+	DeletedAt    sql.NullTime   `json:"deleted_at"`
 }
 
 
-// GetUsers возвращает список всех пользователей
+// GetUsers возвращает список всех заказов
 func GetOrders(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
 	db, err := initDB()
@@ -43,7 +46,8 @@ func GetOrders(w http.ResponseWriter, r *http.Request) {
 	var orderList []Order
 	for orders.Next() {
 		var order Order
-		if err := orders.Scan(&order.OrderId, &order.BuyerId, &order.ProductId, &order.Quantity, &order.TotalPrice, &order.OrderDate); err != nil {
+		if err := orders.Scan(&order.OrderID, &order.BuyerID, &order.OrderDate, &order.CreatedBy, 
+			&order.DeletedBy, &order.CreatedAt, &order.DeletedAt); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -54,7 +58,7 @@ func GetOrders(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, orderList)
 }
 
-// GetUser возвращает пользователя по ID
+// GetOrder возвращает заказа по ID
 func GetOrder(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
 	db, err := initDB()
@@ -83,17 +87,20 @@ func GetOrder(w http.ResponseWriter, r *http.Request) {
 	получения подробной информации. Если более одной строки соответствует запросу,
 	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
 	соответствует запросу, Scan возвращает ErrNoRows. */
-	err = row.Scan(&order.OrderId, &order.BuyerId, &order.ProductId, &order.Quantity, &order.TotalPrice, &order.OrderDate)
-	if err == sql.ErrNoRows {
-		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Заказ не найден"})
-		return
-	} else if err != nil {
-		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при получении заказа", "error1": err.Error()})
-		return
-	}
-	// Передаем в функцию преобразования в json
-	respondWithJSON(w, http.StatusOK, order)
+		if err := row.Scan(&order.OrderID, &order.BuyerID, &order.OrderDate, &order.CreatedBy,
+			 &order.DeletedBy, &order.CreatedAt, &order.DeletedAt); err != nil {
+			if err == sql.ErrNoRows {
+				respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Заказ не найден"})
+				return
+			} else if err != nil {
+				respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при получении заказа", "error1": err.Error()})
+				return
+			}
+		}
+		// Передаем в функцию преобразования в json
+		respondWithJSON(w, http.StatusOK, order)
 }
+
 
 func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
@@ -111,13 +118,13 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 
 	// Вставка нового пользователя в базу данных
-	_, err = db.Exec("INSERT INTO orders (quantity, total_price) VALUES ($1, $2);", Quantity, Total_price)
+	_, err = db.Exec("INSERT INTO orders () VALUES ($1, $2);", )
 	if err != nil {
 		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при добавлении заказа"})
 		return
 	}
 	// Передаем в функцию преобразования в json
-	respondWithJSON(w, http.StatusCreated, map[string]string{"Код": "200"})
+	respondWithJSON(w, http.StatusCreated, map[string]string{"message": "Заказ создан"})
 }
 
 

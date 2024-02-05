@@ -80,7 +80,7 @@ func main() {
 	Controllers.GetOrders).Methods("GET")
 
 	// Получить заказ по id
-	router.HandleFunc("/api/orderId/{id}", 
+	router.HandleFunc("/api/order/{id}", 
 	Controllers.GetOrder).Methods("GET")
 
 	// Создать новый заказ (Регистрация заказа)
@@ -94,6 +94,17 @@ func main() {
 	// Удалить товар
 	router.HandleFunc("/api/order/{id}", 
 	Controllers.DeleteOrder).Methods("DELETE")
+
+
+	/* Endpoints для таблицы с ролями */
+
+	// Получить все товары
+	router.HandleFunc("/api/roles", 
+	Controllers.GetRoles).Methods("GET")
+
+	// Получить заказ по id
+	router.HandleFunc("/api/role/{id}", 
+	Controllers.GetRole).Methods("GET")
 
 	// Запуск сервера на локальном порту 8000
 	log.Fatal(http.ListenAndServe(":8000", router))

@@ -12,15 +12,19 @@ import (
 
 // Product структура представляет собой модель данных для таблицы "Товары"
 type Product struct {
-	ProductID   int       `json:"product_id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Category    string    `json:"category"`
-	Price       float64   `json:"price"`
-	Status      string    `json:"status"`
-	Append_Date 	time.Time `json:"registration_date"`
+	ProductID   int            `json:"product_id"`
+	SellerID    int            `json:"seller_id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Category    string         `json:"category"`
+	Price       float64        `json:"price"`
+	StatusID    int            `json:"status_id"`
+	UploadDate  time.Time      `json:"upload_date"`
+	CreatedBy   int            `json:"created_by"`
+	DeletedBy   sql.NullInt64  `json:"deleted_by"`
+	CreatedAt   time.Time      `json:"created_at"`
+	DeletedAt   sql.NullTime   `json:"deleted_at"`
 }
-
 
 // GetProducts возвращает список всех продуктов
 func GetProducts(w http.ResponseWriter, r *http.Request) {
@@ -45,9 +49,10 @@ func GetProducts(w http.ResponseWriter, r *http.Request) {
 	var productList []Product
 	for products.Next() {
 		var product Product
-		if err := products.Scan(&product.ProductID, &product.Name, 
-			&product.Description, &product.Category, &product.Price, 
-			&product.Category, &product.Append_Date); err != nil {
+		if err := products.Scan(&product.ProductID, &product.SellerID, &product.Name, 
+			&product.Description, &product.Category, &product.Price, &product.Price, 
+			&product.StatusID, &product.UploadDate, &product.CreatedBy,
+			&product.DeletedBy, &product.CreatedAt, &product.DeletedAt); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -86,10 +91,12 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 	Если более одной строки соответствует запросу,
 	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
 	соответствует запросу, Scan возвращает ErrNoRows. */
-	err = row.Scan(&product.ProductID, &product.Name, &product.Description, 
-		&product.Category, &product.Price, &product.Category, &product.Append_Date)
+	err = row.Scan(&product.ProductID, &product.SellerID, &product.Name, 
+		&product.Description, &product.Category, &product.Price, &product.Price, 
+		&product.StatusID, &product.UploadDate, &product.CreatedBy,
+		&product.DeletedBy, &product.CreatedAt, &product.DeletedAt)
 	if err == sql.ErrNoRows {
-		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Пользователь не найден"})
+		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Товар не найден"})
 		return
 	} else if err != nil {
 		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -122,10 +129,12 @@ func GetProductByCategory(w http.ResponseWriter, r *http.Request) {
 	Если более одной строки соответствует запросу,
 	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
 	соответствует запросу, Scan возвращает ErrNoRows. */
-	err = row.Scan(&product.ProductID, &product.Name, &product.Description, 
-		&product.Category, &product.Price, &product.Category, &product.Append_Date)
+	err = row.Scan(&product.ProductID, &product.SellerID, &product.Name, 
+		&product.Description, &product.Category, &product.Price, &product.Price, 
+		&product.StatusID, &product.UploadDate, &product.CreatedBy,
+		&product.DeletedBy, &product.CreatedAt, &product.DeletedAt)
 	if err == sql.ErrNoRows {
-		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Пользователь не найден"})
+		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Товар не найден"})
 		return
 	} else if err != nil {
 		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -145,16 +154,22 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
+	/* INSERT INTO Products (seller_id, name, description, category, price, status_id, created_by, created_at) VALUES
+    (1, 'Product 1', 'Description 1', 'Category 1', 19.99, 1, 1, CURRENT_TIMESTAMP),
+    (2, 'Product 2', 'Description 2', 'Category 2', 29.99, 1, 1, CURRENT_TIMESTAMP),
+    (3, 'Product 3', 'Description 3', 'Category 3', 39.99, 1, 1, CURRENT_TIMESTAMP); */
+
 	// Получаем парраметры из запроса
 	params := mux.Vars(r)
-	name := params["name"]
-	desc := params["description"]
-	categ := params["category"]
-	price := params["price"]
-	status := params["status"]
+	SellerId := params["seller_id"]
+	Name := params["name"]
+	Desc := params["description"]
+	Category := params["category"]
+	Price := params["price"]
+	StatusId := params["status_id"]
 
 	// Делаем запрос к бд
-	_, err = db.Exec("INSERT INTO products (name, description, category, price, status) VALUES ($1, $2, $3, $4, $5);", name, desc, categ, price, status)
+	_, err = db.Exec("INSERT INTO products (seller_id, name, description, category, price, status_id, created_by, created_at) VALUES ($1, $2, $3, $4, $5);", SellerId, Name, Desc, Category, Price, StatusId)
 	if err != nil {
 		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при добавлении пользователя"})
 		return
@@ -177,7 +192,6 @@ func PutProduct(w http.ResponseWriter, r *http.Request) {
 	productID := params["id"]
 	what := params["what"]
 	new := params["new"]
-	log.Printf(productID)
 
 	// Проверка на валидность ID
 	if _, err := strconv.Atoi(productID); err != nil {
@@ -185,7 +199,7 @@ func PutProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Запрос к бд
-	_, err = db.Exec("UPDATE products SET "+what+" = $1 WHERE product_id = $2", new, productID)
+	_, err = db.Exec("UPDATE products SET " + what + " = $1 WHERE product_id = $2", new, productID)
 
 	if err != nil {
 		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error updating user", "error_detail": err.Error()})

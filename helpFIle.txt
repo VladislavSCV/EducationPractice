@@ -1,0 +1,23 @@
+// Order структура представляет собой модель данных для таблицы "Заказы"
+type Order struct {
+	OrderID     int       `json:"order_id"`
+	BuyerID     int       `json:"buyer_id"`
+	OrderDate   time.Time `json:"order_date"`
+	CreatedBy   int       `json:"created_by"`
+	DeletedBy   int       `json:"deleted_by"`
+	CreatedAt   time.Time `json:"created_at"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
+}
+
+// OrderItem структура представляет собой модель данных для таблицы "Товары в Заказе"
+type OrderItem struct {
+	OrderItemID int       `json:"order_item_id"`
+	OrderID     int       `json:"order_id"`
+	ProductID   int       `json:"product_id"`
+	Quantity    int       `json:"quantity"`
+	TotalPrice  float64   `json:"total_price"`
+	CreatedBy   int       `json:"created_by"`
+	DeletedBy   int       `json:"deleted_by"`
+	CreatedAt   time.Time `json:"created_at"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
+}

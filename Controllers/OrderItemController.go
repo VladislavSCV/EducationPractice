@@ -4,27 +4,28 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 )
 
-// User структура представляет собой модель данных для таблицы "Пользователи"
-type User struct {
-	UserID           int       `json:"user_id"`
-	Username         string    `json:"username"`
-	Email            string    `json:"email"`
-	Password         string    `json:"password"`
-	RegistrationDate time.Time `json:"registration_date"`
+// OrderItem структура представляет собой модель данных для таблицы "Товары в Заказе"
+type OrderItem struct {
+	OrderItemID  int            `json:"order_item_id"`
+	OrderID      int            `json:"order_id"`
+	ProductID    int            `json:"product_id"`
+	Quantity     int            `json:"quantity"`
+	TotalPrice   float64        `json:"total_price"`
+	CreatedBy    int            `json:"created_by"`
+	DeletedBy    sql.NullInt64  `json:"deleted_by"`
+	CreatedAt    time.Time      `json:"created_at"`
+	DeletedAt    sql.NullTime   `json:"deleted_at"`
 }
 
-var store = sessions.NewCookieStore([]byte(os.Getenv("28012006")))
 
 // GetUsers возвращает список всех пользователей
-func GetUsers(w http.ResponseWriter, r *http.Request) {
+func GetItems(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
 	db, err := initDB()
 	if err != nil {
@@ -46,7 +47,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	var userList []User
 	for users.Next() {
 		var user User
-		if err := users.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.RegistrationDate); err != nil {
+		if err := users.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.RegDate); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -58,7 +59,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUser возвращает пользователя по ID
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetItem(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
 	db, err := initDB()
 	if err != nil {
@@ -86,7 +87,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	получения подробной информации. Если более одной строки соответствует запросу,
 	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
 	соответствует запросу, Scan возвращает ErrNoRows. */
-	err = row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.RegistrationDate)
+	err = row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.RegDate)
 	if err == sql.ErrNoRows {
 		respondWithJSON(w, http.StatusNotFound, map[string]string{"error": "Пользователь не найден"})
 		return
@@ -98,7 +99,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, user)
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateItem(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
 	db, err := initDB()
 	if err != nil {
@@ -107,22 +108,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	session, _ := store.Get(r, "CreateUserSession")
-
 	// Получаем парраметры из запроса
 	params := mux.Vars(r)
 	UserName := params["username"]
 	Email := params["email"]
 	Password := params["password"]
-
-	session.Values["username"] = UserName
-	session.Values["email"] = Email
-	session.Values["password"] = Password
-	err = session.Save(r, w)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 
 	// Вставка нового пользователя в базу данных
 	_, err = db.Exec("INSERT INTO users (username, email, password) VALUES ($1, $2, $3);", UserName, Email, Password)
@@ -135,47 +125,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func AuthUser(w http.ResponseWriter, r *http.Request) {
-	// Создаем подключение к бд и обрабатываем ошибки
-	db, err := initDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	status := false
-
-	// Получаем параметры из запроса
-	params := mux.Vars(r)
-	email := params["email"]
-	password := params["password"]
-
-	// Запрос к бд
-	row := db.QueryRow("SELECT * FROM users WHERE email = $1 AND password = $2;", email, password)
-
-	var user User
-	/* Сканирование копирует столбцы из сопоставленной строки в значения,
-	на которые указывает dest. Смотрите документацию по строкам.Сканирование для
-	получения подробной информации. Если более одной строки соответствует запросу,
-	сканирование использует первую строку и отбрасывает остальные. Если ни одна строка не
-	соответствует запросу, Scan возвращает ErrNoRows. */
-	err = row.Scan(&user.UserID, &user.Username, &user.Email, &user.Password, &user.RegistrationDate)
-	if err == sql.ErrNoRows {
-		respondWithJSON(w, http.StatusOK, status)
-		return
-	} else if err != nil {
-		respondWithJSON(w, http.StatusOK, status)
-		return
-	}
-	status = true
-
-	// Передаем в функцию преобразования в json
-	respondWithJSON(w, http.StatusOK, status)
-}
-
-
 // UpdateUser обновляет данные пользователя по ID
-func PutUser(w http.ResponseWriter, r *http.Request) {
+func PutItem(w http.ResponseWriter, r *http.Request) {
 	// Создаем подключение к бд и обрабатываем ошибки
     db, err := initDB()
     if err != nil {
@@ -198,7 +149,7 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 	// Запрос к бд
     _, err = db.Exec("UPDATE users SET " + what + " = $1 WHERE user_id = $2", new, userID)
     if err != nil {
-        respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при обновлении пользователя"})
+        respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при обновлении пользователя", "erro2": err.Error()})
         return
     }
 
@@ -206,9 +157,8 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
     respondWithJSON(w, http.StatusOK, map[string]string{"message": "Данные пользователя обновлены"})
 }
 
-
 // DeleteUser удаляет пользователя по ID
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+func DeleteItem(w http.ResponseWriter, r *http.Request) {
 	// Инициализируем подключение к базе данных
 	db, err := initDB()
 	if err != nil {
@@ -228,12 +178,12 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-// Затем удаляем пользователя
-_, err = db.Exec("DELETE FROM users WHERE user_id = $1", userID)
-if err != nil {
-    respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при удалении пользователя"})
-    return
-}
+	// Затем удаляем пользователя
+	_, err = db.Exec("DELETE FROM users WHERE user_id = $1", userID)
+	if err != nil {
+		respondWithJSON(w, http.StatusInternalServerError, map[string]string{"error": "Ошибка при удалении пользователя"})
+		return
+	}
 
 	// Передаем в функцию преобразования в json
 	respondWithJSON(w, http.StatusOK, map[string]string{"message": "Пользователь успешно удален"})
