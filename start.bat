@@ -1,7 +1,7 @@
 @echo off
 set local
 
-set "go_file=./main.go"
+set "go_file=.\main.go"
 
 REM Проверка установлени ли go
 go version > nul 2>&1
