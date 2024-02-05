@@ -98,23 +98,23 @@ func main() {
 	/* Endpoints для таблицы с товарами в заказе */
 
 	// Получить все товары
-	router.HandleFunc("/api/order_items/", 
+	router.HandleFunc("/api/order_items", 
 	Controllers.GetItems).Methods("GET")
 
 	// Получить заказ по id
-	router.HandleFunc("/api/order_item/{id}/", 
+	router.HandleFunc("/api/order_item/{id}", 
 	Controllers.GetItem).Methods("GET")
 
 	// Создать новый заказ (Регистрация заказа)
-	router.HandleFunc("/api/order_item/{order_id}/{product_id}/{quantity}/{total_price}/{created_by}/", 
+	router.HandleFunc("/api/order_item/{order_id}/{product_id}/{quantity}/{total_price}/{created_by}", 
 	Controllers.CreateItem).Methods("POST")
 
 	// Обновить данные о товаре
-	router.HandleFunc("/api/order_item/{id}/{what}/{new}/", 
+	router.HandleFunc("/api/order_item/{id}/{what}/{new}", 
 	Controllers.PutItem).Methods("PUT")
 
 	// Удалить товар
-	router.HandleFunc("/api/order_item/{id}/", 
+	router.HandleFunc("/api/order_item/{id}", 
 	Controllers.DeleteItem).Methods("DELETE")
 
 
@@ -122,22 +122,22 @@ func main() {
 	/* Endpoints для таблицы с обменами */
 
 	// Получить все запросы на обмен
-	router.HandleFunc("/api/trades/", 
+	router.HandleFunc("/api/trades", 
 	Controllers.GetTrades).Methods("GET")
 
 	// Получить запросы на обмен по id
-	router.HandleFunc("/api/trade/{id}/", 
+	router.HandleFunc("/api/trade/{id}", 
 	Controllers.GetTrade).Methods("GET")
 
 	// Создать новый запрос на обмен
-	router.HandleFunc("/api/order/{buyer_id}/{product_id}/{quantity}/{total_price}/", Controllers.CreateTrade).Methods("POST")
+	router.HandleFunc("/api/order/{buyer_id}/{product_id}/{quantity}/{total_price}", Controllers.CreateTrade).Methods("POST")
 
 	// Обновить данные о запросе на обмен
-	router.HandleFunc("/api/order/{id}/{what}/{new}/", 
+	router.HandleFunc("/api/order/{id}/{what}/{new}", 
 	Controllers.PutTrade).Methods("PUT")
 
 	// Удалить запрос на обмен
-	router.HandleFunc("/api/order/{id}/", 
+	router.HandleFunc("/api/order/{id}", 
 	Controllers.DeleteTrade).Methods("DELETE")
 
 
