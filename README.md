@@ -1,4 +1,4 @@
-### API "Sport World"
+# API "Sport World"
 
 ## Описание проекта
 
