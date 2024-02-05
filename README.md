@@ -7,7 +7,8 @@
 # Начало работы
 
 ## Таблица Users
-    ```sql
+
+```sql
     CREATE TABLE Users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
@@ -15,7 +16,7 @@
     password VARCHAR(255) NOT NULL,
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-    ```
+```
 
 ## Таблица Products
 
@@ -29,7 +30,7 @@ CREATE TABLE Products (
     status VARCHAR(255) DEFAULT 'В продаже',
     upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-    ```
+```
 
 2. После создания таблиц, вы можете взаимодействовать с API для управления данными в базе данных.
 
